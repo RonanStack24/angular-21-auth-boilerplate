@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ipt-2026-fullstack
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 24.14.1
