@@ -3,8 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-    production: false,
-    apiUrl: 'https://ipt-2026-backend-xfoa.onrender.com'
+  production: false,
+  apiUrl: "https://ipt-2026-backend-99hb.onrender.com",
 };
 
 /*
