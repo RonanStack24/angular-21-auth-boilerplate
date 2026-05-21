@@ -23,10 +23,8 @@ export class VerifyEmailComponent implements OnInit {
 
     ngOnInit() {
         const token = this.route.snapshot.queryParams['token'];
-        console.log(`VerifyEmailComponent initialized with token: ${token}`);
 
         if (!token) {
-            console.error('No token found in query params, redirecting to login');
             this.router.navigate(['../login'], { relativeTo: this.route });
             return;
         }
@@ -38,12 +36,10 @@ export class VerifyEmailComponent implements OnInit {
             .pipe(first())
             .subscribe({
                 next: () => {
-                    console.log('Verification successful');
                     this.alertService.success('Verification successful, you can now login', { keepAfterRouteChange: true });
                     this.router.navigate(['../login'], { relativeTo: this.route });
                 },
                 error: (error) => {
-                    console.error('Verification failed', error);
                     this.emailStatus = EmailStatus.Failed;
                 }
             });
