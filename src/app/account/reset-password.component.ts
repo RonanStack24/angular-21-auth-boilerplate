@@ -15,7 +15,7 @@ enum TokenStatus {
 @Component({ templateUrl: 'reset-password.component.html', standalone: false })
 export class ResetPasswordComponent implements OnInit {
     TokenStatus = TokenStatus;
-    tokenStatus = TokenStatus.Validating;
+    tokenStatus: TokenStatus = TokenStatus.Validating;
     token?: string;
     form!: FormGroup;
     loading = false;
@@ -35,7 +35,7 @@ export class ResetPasswordComponent implements OnInit {
             password: ['', [Validators.required, Validators.minLength(6)]],
             confirmPassword: ['', Validators.required],
         }, {
-            validator: MustMatch('password', 'confirmPassword')
+            validators: MustMatch('password', 'confirmPassword')
         });
 
         this.route.queryParams
@@ -51,7 +51,11 @@ export class ResetPasswordComponent implements OnInit {
 
                 if (!token) {
                     console.warn('ResetPasswordComponent: No reset token found in the URL query parameters.');
-                    this.tokenStatus = TokenStatus.Invalid;
+                    // If we were validating and the token disappeared, it might be due to the router navigate below.
+                    // Only set to Invalid if we weren't already Valid.
+                    if (this.tokenStatus !== TokenStatus.Valid) {
+                        this.tokenStatus = TokenStatus.Invalid;
+                    }
                     return;
                 }
 

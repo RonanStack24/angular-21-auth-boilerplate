@@ -34,7 +34,7 @@ export class UpdateComponent implements OnInit {
             password: ['', [Validators.minLength(6)]],
             confirmPassword: ['']
         }, {
-            validator: MustMatch('password', 'confirmPassword')
+            validators: MustMatch('password', 'confirmPassword')
         });
     }
 
