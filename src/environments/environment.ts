@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: "https://ipt-2026-backend-99hb.onrender.com",
+  apiUrl: "http://localhost:4000",
 };
 
 /*
