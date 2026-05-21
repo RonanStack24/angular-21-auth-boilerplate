@@ -23,14 +23,22 @@ app.use(express.static(DIST_PATH));
 
 // For all GET requests, send back index.html so that PathLocationStrategy can be used
 app.get('*', function(req, res) {
-    // If the request is for a file (has an extension), but reached here, it means express.static missed it
-    if (req.url.includes('.')) {
-        console.log(`File not found: ${req.url}`);
-        return res.status(404).send('File not found');
+    const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = parsedUrl.pathname;
+
+    // If the request is for a file (has an extension in pathname), but reached here, it means express.static missed it
+    if (pathname.includes('.') && !pathname.endsWith('.html')) {
+        console.log(`Static file not found: ${pathname}`);
+        return res.status(404).send(`File not found: ${pathname}`);
     }
     
-    console.log(`Serving index.html for route: ${req.url}`);
-    res.sendFile(path.join(DIST_PATH, 'index.html'));
+    console.log(`Serving index.html for route: ${pathname}`);
+    res.sendFile(path.join(DIST_PATH, 'index.html'), (err) => {
+        if (err) {
+            console.error('Error sending index.html:', err);
+            res.status(500).send(err.message);
+        }
+    });
 });
 
 app.listen(PORT, () => {
