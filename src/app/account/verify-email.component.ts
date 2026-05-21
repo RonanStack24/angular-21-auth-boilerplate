@@ -35,14 +35,14 @@ export class VerifyEmailComponent implements OnInit {
             replaceUrl: true, 
             queryParams: { token: null }, 
             queryParamsHandling: 'merge' 
-        });
+        }).catch(() => {});
 
         this.accountService.verifyEmail(token)
             .pipe(first())
             .subscribe({
                 next: () => {
                     this.alertService.success('Verification successful, you can now login', { keepAfterRouteChange: true });
-                    this.router.navigate(['../login'], { relativeTo: this.route });
+                    this.router.navigate(['../login'], { relativeTo: this.route }).catch(() => {});
                 },
                 error: (error) => {
                     this.emailStatus = EmailStatus.Failed;
