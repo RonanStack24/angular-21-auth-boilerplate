@@ -8,10 +8,10 @@ const PORT = process.env.PORT || 8080;
 app.use(express.static(path.join(__dirname, 'dist/ipt-2026-frontend')));
 
 // For all GET requests, send back index.html so that PathLocationStrategy can be used
-app.get(/.*/, function(req, res) {
+app.get('*', function(req, res) {
   res.sendFile(path.join(__dirname, 'dist/ipt-2026-frontend/index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log('Server is running on port ' + PORT);
+  console.log(`Server is running on port ${PORT}`);
 });

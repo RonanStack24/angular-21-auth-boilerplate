@@ -43,8 +43,10 @@ export class AccountService {
     }
 
     refreshToken() {
+        console.log(`Calling refreshToken to URL: ${baseUrl}/refresh-token`);
         return this.http.post<any>(`${baseUrl}/refresh-token`, {}, { withCredentials: true })
             .pipe(map(account => {
+                console.log('refreshToken successful');
                 this.accountSubject.next(account);
                 this.startRefreshTokenTimer();
                 return account;
@@ -56,6 +58,7 @@ export class AccountService {
     }
 
     verifyEmail(token: string) {
+        console.log(`Calling verifyEmail with token: ${token} to URL: ${baseUrl}/verify-email`);
         return this.http.post(`${baseUrl}/verify-email`, { token });
     }
 
