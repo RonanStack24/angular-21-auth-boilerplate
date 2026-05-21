@@ -4,15 +4,9 @@ import { first } from 'rxjs/operators';
 
 import { AccountService, AlertService } from '@app/_services';
 
-enum EmailStatus {
-    Verifying,
-    Failed
-}
-
-@Component({ templateUrl: 'verify-email.component.html', standalone: false })
+@Component({ templateUrl: './verify-email.component.html', standalone: false })
 export class VerifyEmailComponent implements OnInit {
-    EmailStatus = EmailStatus;
-    emailStatus = EmailStatus.Verifying;
+    status = 'verifying';
 
     constructor(
         private route: ActivatedRoute,
@@ -24,28 +18,25 @@ export class VerifyEmailComponent implements OnInit {
     ngOnInit() {
         const token = this.route.snapshot.queryParams['token'];
 
+        console.log('VerifyEmailComponent initialized with token:', token);
+
         if (!token) {
+            console.log('No token found, redirecting to login');
             this.router.navigate(['../login'], { relativeTo: this.route });
             return;
         }
-
-        // remove token from url to prevent http referer leakage
-        this.router.navigate([], { 
-            relativeTo: this.route, 
-            replaceUrl: true, 
-            queryParams: { token: null }, 
-            queryParamsHandling: 'merge' 
-        }).catch(() => {});
 
         this.accountService.verifyEmail(token)
             .pipe(first())
             .subscribe({
                 next: () => {
+                    console.log('Email verification successful');
                     this.alertService.success('Verification successful, you can now login', { keepAfterRouteChange: true });
-                    this.router.navigate(['../login'], { relativeTo: this.route }).catch(() => {});
+                    this.router.navigate(['../login'], { relativeTo: this.route });
                 },
                 error: (error) => {
-                    this.emailStatus = EmailStatus.Failed;
+                    console.error('Email verification failed:', error);
+                    this.status = 'failed';
                 }
             });
     }
