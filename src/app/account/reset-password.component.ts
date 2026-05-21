@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -26,7 +26,8 @@ export class ResetPasswordComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -51,13 +52,14 @@ export class ResetPasswordComponent implements OnInit {
 
                 if (!token) {
                     console.warn('ResetPasswordComponent: No reset token found in the URL query parameters.');
-                    // If we were validating and the token disappeared, it might be due to the router navigate below.
                     this.tokenStatus = TokenStatus.Invalid;
+                    this.cdr.detectChanges();
                     return;
                 }
 
                 console.log('ResetPasswordComponent: Found token in URL, calling validateResetToken API...');
                 this.tokenStatus = TokenStatus.Validating;
+                this.cdr.detectChanges();
 
                 this.accountService.validateResetToken(token)
                     .pipe(first())
@@ -66,6 +68,7 @@ export class ResetPasswordComponent implements OnInit {
                             console.log('ResetPasswordComponent: Token validation API returned SUCCESS.');
                             this.token = token;
                             this.tokenStatus = TokenStatus.Valid;
+                            this.cdr.detectChanges();
                             // remove token from url to prevent http referer leakage only after successful validation
                             console.log('ResetPasswordComponent: Clearing token from URL to prevent referer leakage...');
                             this.router.navigate([], { relativeTo: this.route, replaceUrl: true })
@@ -75,6 +78,7 @@ export class ResetPasswordComponent implements OnInit {
                         error: (error) => {
                             console.error('ResetPasswordComponent: Token validation API returned ERROR:', error);
                             this.tokenStatus = TokenStatus.Invalid;
+                            this.cdr.detectChanges();
                         }
                     });
             });
