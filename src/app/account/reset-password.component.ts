@@ -30,6 +30,7 @@ export class ResetPasswordComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        console.log('ResetPasswordComponent: ngOnInit called.');
         this.form = this.formBuilder.group({
             password: ['', [Validators.required, Validators.minLength(6)]],
             confirmPassword: ['', Validators.required],
@@ -38,25 +39,40 @@ export class ResetPasswordComponent implements OnInit {
         });
 
         this.route.queryParams
-            .pipe(first())
             .subscribe(params => {
                 const token = params['token'];
+                console.log('ResetPasswordComponent: Query parameters received:', params);
+
+                // If already successfully validated, do not run validation logic again when the URL gets cleared
+                if (this.tokenStatus === TokenStatus.Valid) {
+                    console.log('ResetPasswordComponent: Token already successfully validated, ignoring URL change.');
+                    return;
+                }
 
                 if (!token) {
+                    console.warn('ResetPasswordComponent: No reset token found in the URL query parameters.');
                     this.tokenStatus = TokenStatus.Invalid;
                     return;
                 }
+
+                console.log('ResetPasswordComponent: Found token in URL, calling validateResetToken API...');
+                this.tokenStatus = TokenStatus.Validating;
 
                 this.accountService.validateResetToken(token)
                     .pipe(first())
                     .subscribe({
                         next: () => {
+                            console.log('ResetPasswordComponent: Token validation API returned SUCCESS.');
                             this.token = token;
                             this.tokenStatus = TokenStatus.Valid;
                             // remove token from url to prevent http referer leakage only after successful validation
-                            this.router.navigate([], { relativeTo: this.route, replaceUrl: true }).catch(() => {});
+                            console.log('ResetPasswordComponent: Clearing token from URL to prevent referer leakage...');
+                            this.router.navigate([], { relativeTo: this.route, replaceUrl: true })
+                                .then(() => console.log('ResetPasswordComponent: URL cleared successfully.'))
+                                .catch(err => console.error('ResetPasswordComponent: Error clearing URL:', err));
                         },
-                        error: () => {
+                        error: (error) => {
+                            console.error('ResetPasswordComponent: Token validation API returned ERROR:', error);
                             this.tokenStatus = TokenStatus.Invalid;
                         }
                     });
