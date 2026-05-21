@@ -25,7 +25,7 @@ if (fs.existsSync(DIST_PATH)) {
 app.use(express.static(DIST_PATH));
 
 // For all GET requests, send back index.html so that PathLocationStrategy can be used
-app.get("*", function (req, res) {
+app.get("*all", function (req, res) {
   const indexPath = path.join(DIST_PATH, "index.html");
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
