@@ -25,12 +25,9 @@ export class VerifyEmailComponent implements OnInit {
     const token = this.route.snapshot.queryParams["token"];
 
     if (!token) {
-      this.router.navigate(["../login"], { relativeTo: this.route });
+      this.router.navigate(["/account/login"]);
       return;
     }
-
-    // remove token from url to prevent http referer leakage
-    this.router.navigate([], { relativeTo: this.route, replaceUrl: true });
 
     this.accountService
       .verifyEmail(token)
@@ -41,7 +38,7 @@ export class VerifyEmailComponent implements OnInit {
             "Verification successful, you can now login",
             { keepAfterRouteChange: true },
           );
-          this.router.navigate(["../login"], { relativeTo: this.route });
+          this.router.navigate(["/account/login"]);
         },
         error: () => {
           this.emailStatus = EmailStatus.Failed;
