@@ -114,14 +114,22 @@ export class AccountService {
     private refreshTokenTimeout?: any;
 
     private startRefreshTokenTimer() {
-        // parse json object from base64 encoded jwt token
-        const jwtBase64 = this.accountValue!.jwtToken!.split('.')[1];
-        const jwtToken = JSON.parse(atob(jwtBase64));
+        if (!this.accountValue || !this.accountValue.jwtToken) return;
 
-        // set a timeout to refresh the token a minute before it expires
-        const expires = new Date(jwtToken.exp * 1000);
-        const timeout = expires.getTime() - Date.now() - (60 * 1000);
-        this.refreshTokenTimeout = setTimeout(() => this.refreshToken().subscribe(), timeout);
+        try {
+            // parse json object from base64 encoded jwt token
+            const jwtBase64 = this.accountValue.jwtToken.split('.')[1];
+            if (!jwtBase64) return;
+            
+            const jwtToken = JSON.parse(atob(jwtBase64));
+
+            // set a timeout to refresh the token a minute before it expires
+            const expires = new Date(jwtToken.exp * 1000);
+            const timeout = expires.getTime() - Date.now() - (60 * 1000);
+            this.refreshTokenTimeout = setTimeout(() => this.refreshToken().subscribe(), timeout);
+        } catch (e) {
+            console.error('Error starting refresh token timer', e);
+        }
     }
 
     private stopRefreshTokenTimer() {
