@@ -1,47 +1,51 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { Component, OnInit } from "@angular/core";
+import { Router, ActivatedRoute } from "@angular/router";
+import { first } from "rxjs/operators";
 
-import { AccountService, AlertService } from '@app/_services';
+import { AccountService, AlertService } from "@app/_services";
 
-@Component({ templateUrl: './verify-email.component.html', standalone: false })
+enum EmailStatus {
+  Verifying,
+  Failed,
+}
+
+@Component({ templateUrl: "verify-email.component.html", standalone: false })
 export class VerifyEmailComponent implements OnInit {
-    status = 'verifying';
+  EmailStatus = EmailStatus;
+  emailStatus = EmailStatus.Verifying;
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private accountService: AccountService,
-        private alertService: AlertService
-    ) { }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private accountService: AccountService,
+    private alertService: AlertService,
+  ) {}
 
-    ngOnInit() {
-        try {
-            const token = this.route.snapshot.queryParams['token'];
-            console.log('VerifyEmailComponent: Initializing with token:', token);
+  ngOnInit() {
+    const token = this.route.snapshot.queryParams["token"];
 
-            if (!token) {
-                console.log('VerifyEmailComponent: No token, redirecting to login');
-                this.router.navigate(['../login'], { relativeTo: this.route });
-                return;
-            }
-
-            this.accountService.verifyEmail(token)
-                .pipe(first())
-                .subscribe({
-                    next: () => {
-                        console.log('VerifyEmailComponent: Success');
-                        this.alertService.success('Verification successful, you can now login', { keepAfterRouteChange: true });
-                        this.router.navigate(['../login'], { relativeTo: this.route });
-                    },
-                    error: (error) => {
-                        console.error('VerifyEmailComponent: API Error:', error);
-                        this.status = 'failed';
-                    }
-                });
-        } catch (e) {
-            console.error('VerifyEmailComponent: Critical error in ngOnInit:', e);
-            this.status = 'failed';
-        }
+    if (!token) {
+      this.router.navigate(["../login"], { relativeTo: this.route });
+      return;
     }
+
+    // remove token from url to prevent http referer leakage
+    this.router.navigate([], { relativeTo: this.route, replaceUrl: true });
+
+    this.accountService
+      .verifyEmail(token)
+      .pipe(first())
+      .subscribe({
+        next: () => {
+          this.alertService.success(
+            "Verification successful, you can now login",
+            { keepAfterRouteChange: true },
+          );
+          this.router.navigate(["../login"], { relativeTo: this.route });
+        },
+        error: () => {
+          this.emailStatus = EmailStatus.Failed;
+        },
+      });
+  }
 }
