@@ -30,7 +30,12 @@ export class VerifyEmailComponent implements OnInit {
         }
 
         // remove token from url to prevent http referer leakage
-        this.router.navigate([], { relativeTo: this.route, replaceUrl: true });
+        this.router.navigate([], { 
+            relativeTo: this.route, 
+            replaceUrl: true, 
+            queryParams: { token: null }, 
+            queryParamsHandling: 'merge' 
+        });
 
         this.accountService.verifyEmail(token)
             .pipe(first())
