@@ -1,12 +1,13 @@
-import { catchError, of, timeout } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { AccountService } from '@app/_services';
 
 export function appInitializer(accountService: AccountService) {
-    return () => accountService.refreshToken()
-        .pipe(
-            // timeout after 5 seconds to ensure app starts even if backend is slow
-            timeout(5000),
-            // catch error to start app on success or failure
-            catchError(() => of())
-        );
+    // return a function that returns an observable
+    // we don't wait for the refresh token to complete to avoid blocking the UI
+    return () => {
+        accountService.refreshToken()
+            .pipe(catchError(() => of()))
+            .subscribe();
+        return of(true);
+    };
 }
