@@ -9,7 +9,7 @@ export function appInitializer(accountService: AccountService) {
             // catch error to start app even if refresh token fails or times out
             catchError((err) => {
                 console.log('App Initializer: Refresh token failed, timed out, or no token found.');
-                return of();
+                return of(null);
             }),
             finalize(() => {
                 console.log('App Initializer: Completed.');
