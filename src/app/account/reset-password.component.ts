@@ -52,10 +52,7 @@ export class ResetPasswordComponent implements OnInit {
                 if (!token) {
                     console.warn('ResetPasswordComponent: No reset token found in the URL query parameters.');
                     // If we were validating and the token disappeared, it might be due to the router navigate below.
-                    // Only set to Invalid if we weren't already Valid.
-                    if (this.tokenStatus !== TokenStatus.Valid) {
-                        this.tokenStatus = TokenStatus.Invalid;
-                    }
+                    this.tokenStatus = TokenStatus.Invalid;
                     return;
                 }
 
