@@ -44,15 +44,14 @@ export class ResetPasswordComponent implements OnInit {
             return;
         }
 
-        // remove token from url to prevent http referer leakage
-        this.router.navigate([], { relativeTo: this.route, replaceUrl: true }).catch(() => {});
-
         this.accountService.validateResetToken(token)
             .pipe(first())
             .subscribe({
                 next: () => {
                     this.token = token;
                     this.tokenStatus = TokenStatus.Valid;
+                    // remove token from url to prevent http referer leakage only after successful validation
+                    this.router.navigate([], { relativeTo: this.route, replaceUrl: true }).catch(() => {});
                 },
                 error: () => {
                     this.tokenStatus = TokenStatus.Invalid;
